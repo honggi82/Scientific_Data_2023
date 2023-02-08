@@ -1,3 +1,14 @@
+% It is sample MATLAB codes for the manuscript entitled 
+% "A magnetoencephalography dataset during three-dimensional reaching movements for brain-computer interfaces". 
+% A "topoplot" function and related sub-functions in the EEGLAB toolbox are needed to plot a topography. 
+% The EEGLAB software is available at https://sccn.ucsd.edu/eeglab30. 
+% For time-frequency analysis or FTF analysis, our custom MATLAB codes are required. 
+% It can be found at https://github.com/honggi82/Scientific_Data_2023. 
+% To use these toolboxes, the folders containing the toolboxes should be added to the "Set Path" of MATLAB. 
+% The "Out of memory" error could occur when MEG data is processed because the data size is quite large. 
+% To this end, we recommend using a computer with a large amount of RAM and using 64-bit MATLAB and a 64-bit operating system (OS). 
+% Copyright (c) 2023 Hong Gi Yeom
+
 clear all; close all; clc;
 
 % adding the data folder to setpath
@@ -45,10 +56,24 @@ for sub=1:9       % subject number
         %====================== 3. Reshaping the data ======================
         for i=1:eve_n
             data(:,:,:,i)=epoched_data{i}(1:ch_n,:,:);
+            acc{i}=epoched_data{i}(317:319,:,:);
         end
         clear epoched_data
         sz = size(data); % data size
-        
+
+        %====================== 4. Plotting position ====================== 
+        [velocity, position]=acc2pos(acc,sf);
+
+        m_st = round(1.3*sf); % movement start
+        m_end = round(2.3*sf); % movement end
+        figure(); set(gcf,'Color','w'); hold on;
+        for j=1:size(position{1},3);
+            plot3(position{1}(1,m_st:m_end,j),position{1}(2,m_st:m_end,j),position{1}(3,m_st:m_end,j),'k'); 
+            plot3(position{2}(1,m_st:m_end,j),position{2}(2,m_st:m_end,j),position{2}(3,m_st:m_end,j),'r'); 
+            plot3(position{3}(1,m_st:m_end,j),position{3}(2,m_st:m_end,j),position{3}(3,m_st:m_end,j),'g'); 
+            plot3(position{4}(1,m_st:m_end,j),position{4}(2,m_st:m_end,j),position{4}(3,m_st:m_end,j),'b');     
+        end        
+
         %====================== 4. Calculation of time-freq power spectra ====================== 
         TF=zeros(sz(1), ceil(freq_band(2)-freq_band(1)/f_scale), sz(2), sz(3), sz(4));
         for ch=1:sz(1)
