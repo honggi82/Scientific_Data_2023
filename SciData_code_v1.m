@@ -74,7 +74,7 @@ for sub=1:9       % subject number
             plot3(position{4}(1,m_st:m_end,j),position{4}(2,m_st:m_end,j),position{4}(3,m_st:m_end,j),'b');     
         end        
 
-        %====================== 4. Calculation of time-freq power spectra ====================== 
+        %====================== 5. Calculation of time-freq power spectra ====================== 
         TF=zeros(sz(1), ceil(freq_band(2)-freq_band(1)/f_scale), sz(2), sz(3), sz(4));
         for ch=1:sz(1)
             for j=1:sz(3)
@@ -87,7 +87,7 @@ for sub=1:9       % subject number
         clear data
         
         m_TF(:,:,:,(sub-1)*2+ses)=mean(mean(TF,5),4); % averaging by trials and event types
-        %====================== 5. FTF analysis ================== 
+        %====================== 6. FTF analysis ================== 
         % We used the following code to prevent "Out of memory", 
         % although you can use "FTF_anal" function directly.
 
@@ -111,7 +111,7 @@ for sub=1:9       % subject number
     end
 end
 
-%====================== 6. Plotting time-freq power spectra ====================== 
+%====================== 7. Plotting time-freq power spectra ====================== 
 AVG_TF=mean(m_TF,4);                                     % averaging by subjects
 
 t=linspace(wnd_size(1),wnd_size(2),size(AVG_TF,3));      % time points
@@ -156,7 +156,7 @@ for ch=43:45
 end
 set(gcf,'Color','w')
 
-%====================== 7. Plotting topography of time-frequency spectra ====================== 
+%====================== 8. Plotting topography of time-frequency spectra ====================== 
 freq = [14 30]; % [1 8], [9 13]
 time = [-0.1 1];
 interval = 0.1;
@@ -191,7 +191,7 @@ for t_point=round((time(1)-wnd_size(1))*sf):round(interval*sf):round((time(2)-wn
     j=j+1;
 end
 
-%====================== 8. plotting F-value on 43-45 channels ====================== 
+%====================== 9. plotting F-value on 43-45 channels ====================== 
 for sub=1:9
     for ses=1:2
         file_n=['TimeFreq_Ch_',num2str(ch_n),'_sub_',num2str(sub),'_ses_',num2str(ses),'.mat'];
