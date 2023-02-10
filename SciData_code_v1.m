@@ -13,7 +13,7 @@ clear all; close all; clc;
 
 % adding the data folder to setpath
 addpath(genpath('C:\SciData')) % The location 'C:\SciData' should be changed
-addpath(genpath('E:\MEG센터 자료\matlab\down\eeglab2021.0')) 
+addpath(genpath('C:\Users\Administrator\Downloads\eeglab2021.0')) % The location 'C:\Users\Administrator\Downloads\eeglab2021.0' should be changed
 
 %====================== 1. Parameter setting ======================
 sf = 600.615;          % sampling frequency
