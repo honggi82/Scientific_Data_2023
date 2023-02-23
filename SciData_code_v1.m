@@ -87,32 +87,13 @@ for sub=1:9       % subject number
         clear data
         
         m_TF(:,:,:,(sub-1)*2+ses)=mean(mean(TF,5),4); % averaging by trials and event types
-        %====================== 6. FTF analysis ================== 
-        % We used the following code to prevent "Out of memory", 
-        % although you can use "FTF_anal" function directly.
-
-%         temp1=mean(TF, 4);
-%         temp2=var(TF, 0, 4);
-%         clear TF
-% 
-%         ni = sz(3);     % # of trials of i-th group
-%         K = sz(4);      % # of group
-%         N = K*ni;       % # of total trials
-%         B = zeros(sz(1), ceil(freq_band(2)-freq_band(1)/f_scale), sz(2), sz(3), sz(4));
-%         W = zeros(sz(1), ceil(freq_band(2)-freq_band(1)/f_scale), sz(2), sz(3), sz(4));
-%         B = squeeze(var(temp1, 0, 5))/(K-1);  % Between variance
-%         W = squeeze(mean(temp2,5))/(N-K);     % Within variance
-%         F=B./W;                               % F-value
-
         file_n=['TimeFreq_Ch_',num2str(ch_n),'_sub_',num2str(sub),'_ses_',num2str(ses),'.mat'];
-%         save(file_n, 'F', 'm_TF');            % saving F-value
-%         clear B W F
         save(file_n, 'm_TF');            % saving F-value
 
     end
 end
 
-%====================== 7. Plotting time-freq power spectra ====================== 
+%====================== 6. Plotting time-freq power spectra ====================== 
 AVG_TF=mean(m_TF,4);                                     % averaging by subjects
 
 t=linspace(wnd_size(1),wnd_size(2),size(AVG_TF,3));      % time points
@@ -157,7 +138,7 @@ for ch=43:45
 end
 set(gcf,'Color','w')
 
-%====================== 8. Plotting topography of time-frequency spectra ====================== 
+%====================== 7. Plotting topography of time-frequency spectra ====================== 
 freq = [14 30]; % [1 8], [9 13]
 time = [-0.1 1];
 interval = 0.1;
@@ -192,12 +173,11 @@ for t_point=round((time(1)-wnd_size(1))*sf):round(interval*sf):round((time(2)-wn
     j=j+1;
 end
 
-%====================== 9. FTF analysis on 43-45 channels ====================== 
+%====================== 8. FTF analysis on 43-45 channels ====================== 
 FTF_ch = 43:45; % channels for the FTF analysis
 for sub=1:9
     for ses=1:2
-        %====================== 2. Loading data ======================
-        % file name
+        % Loading data 
         switch ch_n            
             case 102
                 file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '_epoched_mag.mat'];
@@ -210,7 +190,7 @@ for sub=1:9
         load(file_n); % loading data
         eve_n = length(epoched_data); % number of events
         
-        %====================== 3. Reshaping the data ======================
+        % Reshaping the data
         for i=1:eve_n
             data(:,:,:,i)=epoched_data{i}(1:ch_n,:,:);
         end
