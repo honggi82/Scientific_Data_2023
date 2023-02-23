@@ -28,11 +28,11 @@ scr_sz=get(0,'ScreenSize'); % screen size
 % channel location
 switch ch_n            
     case 102
-        [position]=neuromag_layout_mag;
+        location=neuromag_layout_mag;
     case 204
-        [position]=neuromag_layout_grad;
+        location=neuromag_layout_grad;
     case 306
-        [position]=neuromag_layout_all;
+        location=neuromag_layout_all;
 end
 
 % iteration for all subject and session
@@ -91,22 +91,23 @@ for sub=1:9       % subject number
         % We used the following code to prevent "Out of memory", 
         % although you can use "FTF_anal" function directly.
 
-        temp1=mean(TF, 4);
-        temp2=var(TF, 0, 4);
-        clear TF
-
-        ni = sz(3);     % # of trials of i-th group
-        K = sz(4);      % # of group
-        N = K*ni;       % # of total trials
-        B = zeros(sz(1), ceil(freq_band(2)-freq_band(1)/f_scale), sz(2), sz(3), sz(4));
-        W = zeros(sz(1), ceil(freq_band(2)-freq_band(1)/f_scale), sz(2), sz(3), sz(4));
-        B = squeeze(var(temp1, 0, 5))/(K-1);  % Between variance
-        W = squeeze(mean(temp2,5))/(N-K);     % Within variance
-        F=B./W;                               % F-value
+%         temp1=mean(TF, 4);
+%         temp2=var(TF, 0, 4);
+%         clear TF
+% 
+%         ni = sz(3);     % # of trials of i-th group
+%         K = sz(4);      % # of group
+%         N = K*ni;       % # of total trials
+%         B = zeros(sz(1), ceil(freq_band(2)-freq_band(1)/f_scale), sz(2), sz(3), sz(4));
+%         W = zeros(sz(1), ceil(freq_band(2)-freq_band(1)/f_scale), sz(2), sz(3), sz(4));
+%         B = squeeze(var(temp1, 0, 5))/(K-1);  % Between variance
+%         W = squeeze(mean(temp2,5))/(N-K);     % Within variance
+%         F=B./W;                               % F-value
 
         file_n=['TimeFreq_Ch_',num2str(ch_n),'_sub_',num2str(sub),'_ses_',num2str(ses),'.mat'];
-        save(file_n, 'F', 'm_TF');            % saving F-value
-        clear B W F
+%         save(file_n, 'F', 'm_TF');            % saving F-value
+%         clear B W F
+        save(file_n, 'm_TF');            % saving F-value
 
     end
 end
@@ -120,7 +121,7 @@ fr=linspace(freq_band(1), freq_band(2),size(AVG_TF,2));  % frequency points
 % for whole channel plot
 figure('Position',[0 0 scr_sz(3) scr_sz(4)]);
 for ch=1:ch_n 
-    subplot('Position', position(ch,:));
+    subplot('Position', location(ch,:));
     pcolor(t,fr,squeeze(AVG_TF(ch,:,:))); 
     shading 'interp'; 
     colormap(jet);
@@ -191,35 +192,54 @@ for t_point=round((time(1)-wnd_size(1))*sf):round(interval*sf):round((time(2)-wn
     j=j+1;
 end
 
-%====================== 9. plotting F-value on 43-45 channels ====================== 
+%====================== 9. FTF analysis on 43-45 channels ====================== 
+FTF_ch = 43:45; % channels for the FTF analysis
 for sub=1:9
     for ses=1:2
-        file_n=['TimeFreq_Ch_',num2str(ch_n),'_sub_',num2str(sub),'_ses_',num2str(ses),'.mat'];
-        load(file_n);
+        %====================== 2. Loading data ======================
+        % file name
+        switch ch_n            
+            case 102
+                file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '_epoched_mag.mat'];
+            case 204
+                file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '_epoched_grad.mat'];
+            case 306
+                file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '_epoched_all.mat'];
+        end
+        
+        load(file_n); % loading data
+        eve_n = length(epoched_data); % number of events
+        
+        %====================== 3. Reshaping the data ======================
+        for i=1:eve_n
+            data(:,:,:,i)=epoched_data{i}(1:ch_n,:,:);
+        end
+
+        [F TF] = FTF_anal(data(FTF_ch,:,:,:), sf, wnd_size, baseline,f_scale, freq_band, normal);
         A_F(:,:,:,(sub-1)*2+ses)=F;
     end
 end
 AVG_F=mean(A_F,4);
 
 figure('Position',[0 0 scr_sz(3)/4 scr_sz(4)/4]);
-for ch=43:45
+for ch=FTF_ch
     switch ch
-        case 43
+        case FTF_ch(1)
             subplot('Position', [0.1 0.1 0.4 0.4]);
-        case 44
+        case FTF_ch(2)
             subplot('Position', [0.1 0.55 0.4 0.4]);
-        case 45
+        case FTF_ch(3)
             subplot('Position', [0.55 0.325 0.4 0.4]);
     end
-    pcolor(t,fr,squeeze(AVG_F(ch,:,:))); 
+    pcolor(t,fr,squeeze(AVG_F(ch-FTF_ch(1)+1,:,:))); 
     shading 'interp'; 
     colormap(parula);
     caxis([0 3]);      
     x1=[0 0]; y1=freq_band;
     line(x1,y1,'Color','red', 'LineWidth', 1);
-    if ch==44||ch==45; set(gca,'xtick',[],'ytick',[]); 
+    if ch==FTF_ch(1)||ch==FTF_ch(2); set(gca,'xtick',[],'ytick',[]); 
     else; xticks([-1 0 1 2]); yticks([0 10 20 30 40 50 60]); fontsize(gca,24,"pixels"); end
-    if ch==45; colorbar; fontsize(gca,24,"pixels"); end
+    if ch==FTF_ch(3); colorbar; fontsize(gca,24,"pixels"); end
     ylim([0 60])
 end
 set(gcf,'Color','w')
