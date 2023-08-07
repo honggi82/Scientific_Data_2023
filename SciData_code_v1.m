@@ -12,8 +12,7 @@
 clear all; close all; clc;
 
 % adding the data folder to setpath
-addpath(genpath('C:\SciData')) % The location 'C:\SciData' should be changed
-addpath(genpath('C:\Users\Administrator\Downloads\eeglab2021.0')) % The location 'C:\Users\Administrator\Downloads\eeglab2021.0' should be changed
+addpath(genpath('C:\Users\user\Downloads\eeglab2021.0')) % The location 'C:\Users\user\Downloads\eeglab2021.0' should be changed
 
 %====================== 1. Parameter setting ======================
 sf = 600.615;          % sampling frequency
@@ -40,15 +39,11 @@ for sub=1:9       % subject number
     for ses=1:2   % session number
 
         %====================== 2. Loading data ======================
-        % file name
-        switch ch_n            
-            case 102
-                file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '_epoched_mag.mat'];
-            case 204
-                file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '_epoched_grad.mat'];
-            case 306
-                file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '_epoched_all.mat'];
-        end
+        cd('C:\SciData\Epoched data'); % The location 'C:\SciData' should be changed
+        % cd('C:\SciData\ICA MEG data'); % The location 'C:\SciData' should be changed
+        
+        file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '.mat']; % file name
+        % file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '_ICA.mat'];
         
         load(file_n); % loading data
         eve_n = length(epoched_data); % number of events
@@ -62,7 +57,11 @@ for sub=1:9       % subject number
         sz = size(data); % data size
 
         %====================== 4. Plotting position ====================== 
-        [velocity, position]=acc2pos(acc,sf);
+        for i=1:eve_n
+            for j=1:size(acc{i}, 3)
+                [velocity{i}(:,:,j), position{i}(:,:,j)]=acc2pos(acc{i}(:,:,j),sf);
+            end
+        end
 
         m_st = round(1.3*sf); % movement start
         m_end = round(2.3*sf); % movement end
@@ -178,14 +177,7 @@ FTF_ch = 43:45; % channels for the FTF analysis
 for sub=1:9
     for ses=1:2
         % Loading data 
-        switch ch_n            
-            case 102
-                file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '_epoched_mag.mat'];
-            case 204
-                file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '_epoched_grad.mat'];
-            case 306
-                file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '_epoched_all.mat'];
-        end
+        file_n=['Sub_',num2str(sub),'_ses_',num2str(ses), '.mat'];
         
         load(file_n); % loading data
         eve_n = length(epoched_data); % number of events
