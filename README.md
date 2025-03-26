@@ -1,4 +1,5 @@
 # Scientific_Data_2023
+![Scientific_Data_2023](Scientific_Data_2023.JPG)
 It is sample MATLAB codes for the manuscript entitled "A magnetoencephalography dataset during three-dimensional reaching movements for brain-computer interfaces".
 You can get the analysis results described in the manuscript by running the "SciData_code_v1.m" code.
 A "topoplot" function and related sub-functions in the EEGLAB toolbox are needed to plot a topography. The EEGLAB software is available at https://sccn.ucsd.edu/eeglab30. For time-frequency analysis or FTF analysis, our custom MATLAB codes are required. It can be found at https://github.com/honggi82/Scientific_Data_2023. To use these toolboxes, the folders containing the toolboxes should be added to the "Set Path" of MATLAB.
